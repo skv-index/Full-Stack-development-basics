@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZenSpace Meditation</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    background:#f5f9fc;
+    color:#333;
+}
+
+a{ cursor:pointer; }
+
+/* Navigation */
+nav{
+    background:#1e293b;
+    padding:15px 8%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+    z-index:100;
+}
+
+.logo{
+    color:white;
+    font-size:28px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+nav ul{
+    display:flex;
+    list-style:none;
+}
+
+nav ul li{
+    margin-left:25px;
+}
+
+nav ul li a{
+    color:white;
+    text-decoration:none;
+    transition:0.3s;
+    padding-bottom:4px;
+    border-bottom:2px solid transparent;
+}
+
+nav ul li a:hover,
+nav ul li a.active{
+    color:#38bdf8;
+    border-bottom:2px solid #38bdf8;
+}
+
+/* mobile nav toggle */
+.nav-toggle{
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    gap:5px;
+    cursor:pointer;
+    background:none;
+    border:none;
+}
+.nav-toggle span{
+    width:26px;
+    height:3px;
+    background:white;
+    border-radius:2px;
+}
+
+/* Hero Section */
+.hero{
+    height:90vh;
+    background:
+    linear-gradient(rgba(0,0,0,0.4),
+    rgba(0,0,0,0.4)),
+    url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600');
+    background-size:cover;
+    background-position:center;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    color:white;
+}
+
+.hero-content h1{
+    font-size:60px;
+    margin-bottom:20px;
+}
+
+.hero-content p{
+    font-size:22px;
+    margin-bottom:30px;
+}
+
+.btn{
+    display:inline-block;
+    padding:15px 35px;
+    background:#38bdf8;
+    color:white;
+    text-decoration:none;
+    border-radius:30px;
+    transition:0.3s;
+    border:none;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.btn:hover{
+    background:#0ea5e9;
+    transform:translateY(-3px);
+}
+
+/* Sections */
+section{
+    padding:70px 10%;
+}
+
+.section-title{
+    text-align:center;
+    font-size:38px;
+    margin-bottom:50px;
+    color:#1e293b;
+}
+
+/* Features */
+.features{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+}
+
+.card{
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    transition:0.3s;
+    cursor:pointer;
+}
+
+.card:hover{
+    transform:translateY(-10px);
+}
+
+.card h3{
+    margin:15px 0;
+    color:#0f172a;
+}
+
+/* Media */
+.media-container{
+    max-width:800px;
+    margin:auto;
+}
+
+video,audio{
+    width:100%;
+    border-radius:15px;
+}
+
+/* Testimonials */
+.testimonials{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:25px;
+}
+
+.testimonial{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Contact form */
+.contact-form{
+    max-width:600px;
+    margin:auto;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+.contact-form input,
+.contact-form textarea{
+    padding:14px 16px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    font-size:16px;
+    font-family:inherit;
+    resize:vertical;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus{
+    outline:2px solid #38bdf8;
+    border-color:#38bdf8;
+}
+
+.contact-form button{
+    align-self:center;
+}
+
+.form-status{
+    text-align:center;
+    margin-top:10px;
+    font-weight:600;
+    min-height:24px;
+}
+.form-status.success{ color:#0ea5e9; }
+.form-status.error{ color:#dc2626; }
+
+/* Footer */
+footer{
+    background:#1e293b;
+    color:white;
+    text-align:center;
+    padding:25px;
+}
+
+/* Meditation modal */
+.modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,0.75);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal-overlay.open{
+    display:flex;
+}
+
+.modal{
+    background:#0f172a;
+    color:white;
+    border-radius:20px;
+    padding:40px;
+    max-width:480px;
+    width:100%;
+    text-align:center;
+    position:relative;
+}
+
+.modal-close{
+    position:absolute;
+    top:18px;
+    right:18px;
+    background:none;
+    border:none;
+    color:white;
+    font-size:24px;
+    cursor:pointer;
+    line-height:1;
+}
+
+.modal h2{
+    margin-bottom:10px;
+}
+
+.modal p.subtitle{
+    color:#94a3b8;
+    margin-bottom:30px;
+}
+
+.breath-circle-wrap{
+    display:flex;
+    justify-content:center;
+    margin-bottom:30px;
+}
+
+.breath-circle{
+    width:160px;
+    height:160px;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, #38bdf8, #0ea5e9);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    font-weight:600;
+    transition:transform 4s ease-in-out;
+    transform:scale(0.8);
+}
+
+.breath-circle.inhale{
+    transform:scale(1.15);
+    transition:transform 4s ease-in-out;
+}
+
+.breath-circle.exhale{
+    transform:scale(0.8);
+    transition:transform 4s ease-in-out;
+}
+
+.timer-display{
+    font-size:42px;
+    font-weight:700;
+    margin-bottom:20px;
+    letter-spacing:1px;
+}
+
+.duration-select{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:25px;
+    flex-wrap:wrap;
+}
+
+.duration-select button{
+    background:#1e293b;
+    color:white;
+    border:1px solid #334155;
+    padding:8px 16px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.duration-select button.selected,
+.duration-select button:hover{
+    background:#38bdf8;
+    border-color:#38bdf8;
+}
+
+.modal-actions{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+}
+
+.btn-secondary{
+    background:transparent;
+    border:1px solid #475569;
+    color:white;
+    padding:15px 30px;
+    border-radius:30px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn-secondary:hover{
+    border-color:#38bdf8;
+    color:#38bdf8;
+}
+
+/* Toast */
+.toast{
+    position:fixed;
+    bottom:30px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#1e293b;
+    color:white;
+    padding:14px 28px;
+    border-radius:30px;
+    opacity:0;
+    pointer-events:none;
+    transition:0.3s;
+    z-index:1100;
+    box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
+
+.toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media(max-width:768px){
+    .hero-content h1{
+        font-size:40px;
+    }
+
+    nav{
+        flex-wrap:wrap;
+    }
+
+    .nav-toggle{
+        display:flex;
+    }
+
+    nav ul{
+        display:none;
+        width:100%;
+        flex-direction:column;
+        margin-top:15px;
+    }
+
+    nav ul.open{
+        display:flex;
+    }
+
+    nav ul li{
+        margin:10px 0 0 0;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+    <div class="logo" data-scroll="top">ZenSpace</div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu">
+        <span></span><span></span><span></span>
+    </button>
+
+    <ul id="navList">
+        <li><a href="#top" class="nav-link active" data-scroll="top">Home</a></li>
+        <li><a href="#meditation" class="nav-link" data-scroll="meditation">Meditation</a></li>
+        <li><a href="#music" class="nav-link" data-scroll="music">Music</a></li>
+        <li><a href="#programs" class="nav-link" data-scroll="programs">Programs</a></li>
+        <li><a href="#contact" class="nav-link" data-scroll="contact">Contact</a></li>
+    </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="top">
+    <div class="hero-content">
+        <h1>Find Your Inner Peace</h1>
+        <p>Guided meditation, calming sounds and mindful living.</p>
+        <button class="btn" id="startMeditationBtn">Start Meditation</button>
+    </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+    <h2 class="section-title">Why Choose ZenSpace?</h2>
+
+    <div class="features">
+        <div class="card" data-scroll="meditation">
+            <h3>🧘 Guided Sessions</h3>
+            <p>Relax with expert-guided meditation programs.</p>
+        </div>
+
+        <div class="card" data-scroll="music">
+            <h3>🎵 Relaxing Audio</h3>
+            <p>Nature sounds and calming music for focus.</p>
+        </div>
+
+        <div class="card" data-scroll="programs">
+            <h3>🌙 Better Sleep</h3>
+            <p>Sleep stories and breathing exercises.</p>
+        </div>
+
+        <div class="card" id="trackProgressCard">
+            <h3>📈 Track Progress</h3>
+            <p>Build healthy meditation habits every day.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Video Section -->
+<section id="meditation">
+    <h2 class="section-title">Meditation Journey</h2>
+
+    <div class="media-container">
+        <video controls>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+    </div>
+</section>
+
+<!-- Audio Section -->
+<section id="music">
+    <h2 class="section-title">Relaxing Soundscape</h2>
+
+    <div class="media-container">
+        <audio controls>
+            <source src="https://www.w3schools.com/html/horse.ogg" type="audio/ogg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+</section>
+
+<!-- Programs / Testimonials -->
+<section id="programs">
+    <h2 class="section-title">What Users Say</h2>
+
+    <div class="testimonials">
+        <div class="testimonial">
+            <p>"ZenSpace transformed my daily routine. I feel calmer and more focused."</p>
+            <h4>- Sarah M.</h4>
+        </div>
+
+        <div class="testimonial">
+            <p>"The sleep meditations helped me overcome insomnia."</p>
+            <h4>- David R.</h4>
+        </div>
+
+        <div class="testimonial">
+            <p>"Beautiful design and amazing relaxation music."</p>
+            <h4>- Emily K.</h4>
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+    <h2 class="section-title">Get In Touch</h2>
+
+    <form class="contact-form" id="contactForm">
+        <input type="text" id="contactName" placeholder="Your name" required>
+        <input type="email" id="contactEmail" placeholder="Your email" required>
+        <textarea id="contactMessage" rows="5" placeholder="Your message" required></textarea>
+        <button type="submit" class="btn">Send Message</button>
+        <p class="form-status" id="formStatus"></p>
+    </form>
+</section>
+
+<!-- Footer -->
+<footer>
+    <p>© 2026 ZenSpace Meditation App | Designed for Mindfulness &amp; Wellness</p>
+</footer>
+
+<!-- Meditation Modal -->
+<div class="modal-overlay" id="meditationModal">
+    <div class="modal">
+        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+
+        <div id="setupView">
+            <h2>Start a Session</h2>
+            <p class="subtitle">Choose how long you'd like to meditate.</p>
+
+            <div class="duration-select" id="durationSelect">
+                <button data-seconds="60">1 min</button>
+                <button data-seconds="180" class="selected">3 min</button>
+                <button data-seconds="300">5 min</button>
+                <button data-seconds="600">10 min</button>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn" id="beginSessionBtn">Begin</button>
+            </div>
+        </div>
+
+        <div id="sessionView" style="display:none;">
+            <h2>Breathe With Me</h2>
+            <p class="subtitle" id="breathLabel">Get ready...</p>
+
+            <div class="breath-circle-wrap">
+                <div class="breath-circle" id="breathCircle">Relax</div>
+            </div>
+
+            <div class="timer-display" id="timerDisplay">03:00</div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" id="endSessionBtn">End Session</button>
+            </div>
+        </div>
+
+        <div id="completeView" style="display:none;">
+            <h2>🌿 Session Complete</h2>
+            <p class="subtitle" id="completeMessage">You meditated for 3 minutes. Well done.</p>
+            <div class="modal-actions">
+                <button class="btn" id="doneBtn">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+    "use strict";
+
+    /* ---------- Toast ---------- */
+    var toastEl = document.getElementById('toast');
+    var toastTimer = null;
+    function showToast(msg){
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function(){
+            toastEl.classList.remove('show');
+        }, 2600);
+    }
+
+    /* ---------- Mobile nav toggle ---------- */
+    var navToggle = document.getElementById('navToggle');
+    var navList = document.getElementById('navList');
+    navToggle.addEventListener('click', function(){
+        navList.classList.toggle('open');
+    });
+
+    /* ---------- Smooth scroll for all data-scroll elements ---------- */
+    function scrollToId(id){
+        var target = document.getElementById(id);
+        if(!target) return;
+        target.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    document.querySelectorAll('[data-scroll]').forEach(function(el){
+        el.addEventListener('click', function(e){
+            e.preventDefault();
+            var id = el.getAttribute('data-scroll');
+            scrollToId(id);
+            navList.classList.remove('open');
+        });
+    });
+
+    /* ---------- Active nav link on scroll ---------- */
+    var navLinks = document.querySelectorAll('.nav-link');
+    var sectionIds = ['top','meditation','music','programs','contact'];
+    var sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+
+    function setActiveLink(id){
+        navLinks.forEach(function(link){
+            link.classList.toggle('active', link.getAttribute('data-scroll') === id);
+        });
+    }
+
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+            if(entry.isIntersecting){
+                setActiveLink(entry.target.id);
+            }
+        });
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+
+    sections.forEach(function(sec){ observer.observe(sec); });
+
+    /* ---------- Track Progress card ---------- */
+    document.getElementById('trackProgressCard').addEventListener('click', function(){
+        var count = parseInt(localStorage.getItem('zenspace_sessions') || '0', 10);
+        showToast(count > 0
+            ? "You've completed " + count + " session" + (count === 1 ? "" : "s") + " so far. Keep going!"
+            : "No sessions logged yet — tap \"Start Meditation\" to begin your streak.");
+    });
+
+    /* ---------- Contact form ---------- */
+    var contactForm = document.getElementById('contactForm');
+    var formStatus = document.getElementById('formStatus');
+    contactForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        var name = document.getElementById('contactName').value.trim();
+        var email = document.getElementById('contactEmail').value.trim();
+        var message = document.getElementById('contactMessage').value.trim();
+        var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+        if(!name || !emailOk || !message){
+            formStatus.textContent = 'Please fill in every field with a valid email address.';
+            formStatus.className = 'form-status error';
+            return;
+        }
+
+        formStatus.textContent = 'Thanks, ' + name + '! Your message has been received.';
+        formStatus.className = 'form-status success';
+        contactForm.reset();
+    });
+
+    /* ---------- Meditation Modal ---------- */
+    var modal = document.getElementById('meditationModal');
+    var setupView = document.getElementById('setupView');
+    var sessionView = document.getElementById('sessionView');
+    var completeView = document.getElementById('completeView');
+
+    var durationSelect = document.getElementById('durationSelect');
+    var selectedSeconds = 180;
+
+    var timerDisplay = document.getElementById('timerDisplay');
+    var breathCircle = document.getElementById('breathCircle');
+    var breathLabel = document.getElementById('breathLabel');
+    var completeMessage = document.getElementById('completeMessage');
+
+    var countdownInterval = null;
+    var breathInterval = null;
+    var remainingSeconds = selectedSeconds;
+
+    function formatTime(totalSeconds){
+        var m = Math.floor(totalSeconds / 60);
+        var s = totalSeconds % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function openModal(){
+        modal.classList.add('open');
+        showView('setup');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(){
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        stopSession(false);
+    }
+
+    function showView(name){
+        setupView.style.display = name === 'setup' ? 'block' : 'none';
+        sessionView.style.display = name === 'session' ? 'block' : 'none';
+        completeView.style.display = name === 'complete' ? 'block' : 'none';
+    }
+
+    durationSelect.querySelectorAll('button').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            durationSelect.querySelectorAll('button').forEach(function(b){ b.classList.remove('selected'); });
+            btn.classList.add('selected');
+            selectedSeconds = parseInt(btn.getAttribute('data-seconds'), 10);
+        });
+    });
+
+    function runBreathCycle(){
+        var phase = 0; // 0 = inhale, 1 = exhale
+        function step(){
+            if(phase === 0){
+                breathCircle.classList.remove('exhale');
+                breathCircle.classList.add('inhale');
+                breathCircle.textContent = 'Inhale';
+                breathLabel.textContent = 'Breathe in slowly through your nose...';
+            } else {
+                breathCircle.classList.remove('inhale');
+                breathCircle.classList.add('exhale');
+                breathCircle.textContent = 'Exhale';
+                breathLabel.textContent = 'Breathe out gently through your mouth...';
+            }
+            phase = phase === 0 ? 1 : 0;
+        }
+        step();
+        breathInterval = setInterval(step, 4000);
+    }
+
+    function startSession(){
+        remainingSeconds = selectedSeconds;
+        timerDisplay.textContent = formatTime(remainingSeconds);
+        showView('session');
+        runBreathCycle();
+
+        countdownInterval = setInterval(function(){
+            remainingSeconds--;
+            timerDisplay.textContent = formatTime(Math.max(remainingSeconds,0));
+            if(remainingSeconds <= 0){
+                finishSession();
+            }
+        }, 1000);
+    }
+
+    function finishSession(){
+        stopSession(true);
+        var minutes = Math.round(selectedSeconds / 60);
+        completeMessage.textContent = 'You meditated for ' + minutes + ' minute' + (minutes === 1 ? '' : 's') + '. Well done.';
+        showView('complete');
+
+        var count = parseInt(localStorage.getItem('zenspace_sessions') || '0', 10) + 1;
+        localStorage.setItem('zenspace_sessions', String(count));
+    }
+
+    function stopSession(completed){
+        clearInterval(countdownInterval);
+        clearInterval(breathInterval);
+        countdownInterval = null;
+        breathInterval = null;
+        breathCircle.classList.remove('inhale','exhale');
+        breathCircle.textContent = 'Relax';
+        if(!completed){
+            showView('setup');
+        }
+    }
+
+    document.getElementById('startMeditationBtn').addEventListener('click', openModal);
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('beginSessionBtn').addEventListener('click', startSession);
+    document.getElementById('endSessionBtn').addEventListener('click', function(){
+        clearInterval(countdownInterval);
+        clearInterval(breathInterval);
+        breathCircle.classList.remove('inhale','exhale');
+        breathCircle.textContent = 'Relax';
+        showToast('Session ended early — that\'s okay, every moment counts.');
+        closeModal();
+    });
+    document.getElementById('doneBtn').addEventListener('click', function(){
+        showToast('Nice work! Your session has been logged.');
+        closeModal();
+    });
+
+    modal.addEventListener('click', function(e){
+        if(e.target === modal){
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape' && modal.classList.contains('open')){
+            closeModal();
+        }
+    });
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack Pro — Smart Watch Registration System</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;700;900&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* ============================================
+           CSS CUSTOM PROPERTIES / DESIGN TOKENS
+        ============================================ */
+        :root {
+            --bg: #0a0f0d;
+            --bg-secondary: #111a16;
+            --fg: #e8f0ec;
+            --fg-muted: #8a9e92;
+            --accent: #00e676;
+            --accent-dim: #00c864;
+            --accent-glow: rgba(0, 230, 118, 0.25);
+            --gold: #ffd54f;
+            --gold-dim: #e6b800;
+            --card: rgba(17, 26, 22, 0.85);
+            --card-border: rgba(0, 230, 118, 0.12);
+            --border: rgba(255, 255, 255, 0.06);
+            --error: #ff5252;
+            --success: #00e676;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Space Grotesk', sans-serif;
+        }
+
+        /* ============================================
+           RESET & BASE
+        ============================================ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated background blobs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        body::before {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0,230,118,0.08), transparent 70%);
+            top: -200px;
+            right: -150px;
+            animation: blobFloat 18s ease-in-out infinite;
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,213,79,0.06), transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            animation: blobFloat 22s ease-in-out infinite reverse;
+        }
+
+        @keyframes blobFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(40px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* ============================================
+           UTILITY CLASSES
+        ============================================ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            text-align: center;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--fg-muted);
+            font-size: 1.05rem;
+            margin-bottom: 48px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .accent-text {
+            color: var(--accent);
+        }
+
+        .gold-text {
+            color: var(--gold);
+        }
+
+        /* ============================================
+           HEADER & NAVIGATION
+        ============================================ */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 15, 13, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(10, 15, 13, 0.95);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--bg);
+            font-weight: 900;
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        .logo-text {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 1.4rem;
+            color: var(--fg);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--accent);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--fg-muted);
+            font-size: 0.92rem;
+            font-weight: 500;
+            padding: 8px 18px;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            color: var(--accent);
+            background: rgba(0, 230, 118, 0.08);
+        }
+
+        /* Mobile hamburger */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+
+        .hamburger span {
+            width: 26px;
+            height: 2.5px;
+            background: var(--fg);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* ============================================
+           HERO SECTION
+        ============================================ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0,230,118,0.07) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,230,118,0.1);
+            border: 1px solid rgba(0,230,118,0.2);
+            color: var(--accent);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 999px;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .hero-badge i {
+            font-size: 0.7rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(2.8rem, 6vw, 4.5rem);
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 .line-accent {
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            color: var(--fg-muted);
+            font-size: 1.15rem;
+            max-width: 480px;
+            margin-bottom: 36px;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: 999px;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            color: var(--bg);
+            box-shadow: 0 4px 24px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,230,118,0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--fg);
+            border: 1.5px solid rgba(255,255,255,0.15);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0,230,118,0.05);
+        }
+
+        /* Hero watch visual */
+        .hero-visual {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .watch-showcase {
+            width: 380px;
+            height: 380px;
+            position: relative;
+        }
+
+        /* Animated ring behind watch */
+        .watch-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 340px;
+            height: 340px;
+            border: 2px solid rgba(0,230,118,0.15);
+            border-radius: 50%;
+            animation: ringPulse 4s ease-in-out infinite;
+        }
+
+        .watch-ring:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            border-color: rgba(255,213,79,0.1);
+            animation-delay: 1s;
+        }
+
+        @keyframes ringPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.5; }
+        }
+
+        .watch-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 220px;
+            background: linear-gradient(145deg, #1a2a22, #0d1a14);
+            border-radius: 50%;
+            border: 3px solid rgba(0,230,118,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 0 60px rgba(0,230,118,0.15),
+                inset 0 0 40px rgba(0,230,118,0.05);
+        }
+
+        .watch-time {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 2.6rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+
+        .watch-date {
+            font-size: 0.72rem;
+            color: var(--fg-muted);
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        .watch-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 12px;
+        }
+
+        .watch-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .watch-stat i {
+            font-size: 0.75rem;
+            color: var(--gold);
+        }
+
+        .watch-stat span {
+            font-size: 0.6rem;
+            color: var(--fg-muted);
+        }
+
+        /* Floating stats around watch */
+        .float-stat {
+            position: absolute;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            padding: 10px 16px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: floatUp 6s ease-in-out infinite;
+            white-space: nowrap;
+        }
+
+        .float-stat i {
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .float-stat .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .float-stat .stat-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .float-stat .stat-label {
+            font-size: 0.65rem;
+            color: var(--fg-muted);
+        }
+
+        .float-stat:nth-child(4) { top: 10%; right: -10%; animation-delay: 0s; }
+        .float-stat:nth-child(5) { bottom: 15%; left: -15%; animation-delay: 2s; }
+        .float-stat:nth-child(6) { top: 50%; right: -20%; animation-delay: 4s; }
+
+        @keyframes floatUp {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* ============================================
+           PRODUCT FEATURES SECTION
+        ============================================ */
+        .features-section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 36px 28px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0,230,118,0.3);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px var(--accent-glow);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, rgba(0,230,118,0.15), rgba(255,213,79,0.1));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            color: var(--bg);
+            transform: scale(1.1);
+        }
+
+        .feature-card h3 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--fg-muted);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           SHOWCASE SECTION
+        ============================================ */
+        .showcase-section {
+            padding: 100px 0;
+            background: linear-gradient(180deg, transparent, rgba(0,230,118,0.02), transparent);
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+        }
+
+        .showcase-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 28px 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .showcase-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        .watch-image {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(145deg, #162a1f, #0d1a14);
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .watch-image::after {
+            content: '';
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 2px solid rgba(0,230,118,0.2);
+            background: radial-gradient(circle, rgba(0,230,118,0.08), transparent);
+        }
+
+        .watch-image i {
+            font-size: 2rem;
+            color: var(--accent);
+            z-index: 1;
+        }
+
+        .showcase-card h4 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .showcase-card .price {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .showcase-card .original-price {
+            color: var(--fg-muted);
+            font-size: 0.8rem;
+            text-decoration: line-through;
+        }
+
+        /* ============================================
+           REGISTRATION SECTION
+        ============================================ */
+        .register-section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .register-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at top center, rgba(0,230,118,0.04), transparent 60%);
+            pointer-events: none;
+        }
+
+        .form-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 48px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .form-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent));
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .form-header h2 {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: var(--fg-muted);
+            font-size: 0.95rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--fg);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-group label i {
+            color: var(--accent);
+            font-size: 0.8rem;
+        }
+
+        .form-group label .required {
+            color: var(--error);
+            font-size: 0.75rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            background: rgba(255,255,255,0.04);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            color: var(--fg);
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: rgba(0,230,118,0.03);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--fg-muted);
+            opacity: 0.5;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300e676' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+
+        .form-group select option {
+            background: var(--bg-secondary);
+            color: var(--fg);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .error-msg {
+            color: var(--error);
+            font-size: 0.78rem;
+            font-weight: 500;
+            min-height: 18px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-msg.visible {
+            opacity: 1;
+        }
+
+        /* Radio & Checkbox groups */
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .radio-group label,
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1.5px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            transition: all 0.3s ease;
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+
+        .radio-group label:hover,
+        .checkbox-group label:hover {
+            border-color: rgba(0,230,118,0.3);
+            background: rgba(0,230,118,0.05);
+        }
+
+        .radio-group input:checked + span,
+        .checkbox-group input:checked + span {
+            color: var(--accent);
+        }
+
+        .radio-group label:has(input:checked),
+        .checkbox-group label:has(input:checked) {
+            border-color: var(--accent);
+            background: rgba(0,230,118,0.08);
+        }
+
+        .radio-group input,
+        .checkbox-group input {
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* Form buttons */
+        .form-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .btn-submit {
+            flex: 1;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            color: var(--bg);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,230,118,0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-reset {
+            padding: 14px 32px;
+            background: transparent;
+            color: var(--fg-muted);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-reset:hover {
+            border-color: var(--error);
+            color: var(--error);
+            background: rgba(255,82,82,0.05);
+        }
+
+        /* Success message toast */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 9999;
+            transform: translateX(120%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast i {
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+
+        .toast .toast-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toast .toast-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .toast .toast-msg {
+            font-size: 0.8rem;
+            color: var(--fg-muted);
+        }
+
+        /* ============================================
+           REPORT TABLE SECTION
+        ============================================ */
+        .report-section {
+            padding: 60px 0 100px;
+        }
+
+        .report-section .section-title {
+            margin-bottom: 36px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--card-border);
+            background: var(--card);
+            box-shadow: var(--shadow);
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .report-table thead {
+            background: linear-gradient(135deg, rgba(0,230,118,0.12), rgba(255,213,79,0.08));
+        }
+
+        .report-table th {
+            padding: 16px 14px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--accent);
+            border-bottom: 2px solid var(--card-border);
+            white-space: nowrap;
+        }
+
+        .report-table td {
+            padding: 14px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--fg);
+            vertical-align: top;
+        }
+
+        .report-table tbody tr {
+            transition: background 0.3s ease;
+        }
+
+        .report-table tbody tr:hover {
+            background: rgba(0,230,118,0.04);
+        }
+
+        .report-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .no-data-msg {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--fg-muted);
+            font-size: 0.95rem;
+        }
+
+        .no-data-msg i {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+        /* ============================================
+           TESTIMONIALS SECTION
+        ============================================ */
+        .testimonials-section {
+            padding: 100px 0;
+            background: linear-gradient(180deg, transparent, rgba(255,213,79,0.02), transparent);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .testimonial-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+        }
+
+        .testimonial-card .quote-icon {
+            font-size: 1.8rem;
+            color: var(--accent);
+            opacity: 0.3;
+            margin-bottom: 12px;
+        }
+
+        .testimonial-card .review-text {
+            color: var(--fg);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .testimonial-card .reviewer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reviewer-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--bg);
+        }
+
+        .reviewer-info .reviewer-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .reviewer-info .reviewer-role {
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+        }
+
+        .review-stars {
+            color: var(--gold);
+            font-size: 0.75rem;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 3px;
+        }
+
+        /* ============================================
+           FOOTER
+        ============================================ */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--card-border);
+            padding: 60px 0 24px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 16px;
+        }
+
+        .footer-brand p {
+            color: var(--fg-muted);
+            font-size: 0.88rem;
+            line-height: 1.7;
+            max-width: 300px;
+        }
+
+        .footer-col h4 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+            color: var(--fg);
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col ul li a {
+            color: var(--fg-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--accent);
+        }
+
+        .footer-col ul li i {
+            width: 20px;
+            color: var(--accent);
+            font-size: 0.85rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--fg-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .social-links a:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0,230,118,0.08);
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-bottom p {
+            color: var(--fg-muted);
+            font-size: 0.8rem;
+        }
+
+        .current-date {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ============================================
+           SCROLL REVEAL ANIMATION
+        ============================================ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ============================================
+           RESPONSIVE MEDIA QUERIES
+        ============================================ */
+        @media (max-width: 1024px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .showcase-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(10,15,13,0.98);
+                flex-direction: column;
+                padding: 20px 24px;
+                border-bottom: 1px solid var(--card-border);
+            }
+
+            nav ul.show {
+                display: flex;
+            }
+
+            nav ul li a {
+                display: block;
+                padding: 12px 0;
+                border-radius: 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 40px;
+            }
+
+            .hero p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-visual {
+                order: -1;
+            }
+
+            .watch-showcase {
+                width: 280px;
+                height: 280px;
+            }
+
+            .watch-ring { width: 260px; height: 260px; }
+            .watch-ring:nth-child(2) { width: 220px; height: 220px; }
+            .watch-display { width: 160px; height: 160px; }
+            .watch-time { font-size: 1.8rem; }
+
+            .float-stat { display: none; }
+
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .showcase-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-wrapper {
+                padding: 32px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-buttons {
+                flex-direction: column;
+            }
+
+            .radio-group,
+            .checkbox-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================
+         TOAST NOTIFICATION
+    ============================================ -->
+    <div class="toast" id="toast" role="alert" aria-live="assertive">
+        <i class="fa-solid fa-circle-check"></i>
+        <div class="toast-text">
+            <span class="toast-title">Registration Successful</span>
+            <span class="toast-msg">Your data has been added to the report.</span>
+        </div>
+    </div>
+
+    <!-- ============================================
+         HEADER & NAVIGATION
+    ============================================ -->
+    <header id="mainHeader">
+        <div class="header-inner">
+            <a href="#" class="logo" aria-label="FitTrack Pro Home">
+                <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                <div class="logo-text">Fit<span>Track</span> Pro</div>
+            </a>
+
+            <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav>
+                <ul id="navMenu">
+                    <li><a href="#hero" class="active">Home</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#register">Register</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ============================================
+         HERO SECTION
+    ============================================ -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-grid">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="fa-solid fa-circle"></i>
+                        Next-Gen Wearable Technology
+                    </div>
+                    <h1>
+                        Track Your<br>
+                        <span class="line-accent">Every Beat</span>
+                    </h1>
+                    <p>
+                        Precision health monitoring meets premium design. Register your FitTrack Pro smart watch and unlock personalized fitness insights, real-time biometrics, and AI-powered coaching.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#register" class="btn btn-primary">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            Register Now
+                        </a>
+                        <a href="#features" class="btn btn-outline">
+                            <i class="fa-solid fa-play"></i>
+                            Explore Features
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="watch-showcase">
+                        <div class="watch-ring"></div>
+                        <div class="watch-ring"></div>
+                        <div class="watch-display">
+                            <div class="watch-time" id="watchTime">00:00</div>
+                            <div class="watch-date" id="watchDate">--</div>
+                            <div class="watch-stats">
+                                <div class="watch-stat">
+                                    <i class="fa-solid fa-heart"></i>
+                                    <span>72 bpm</span>
+                                </div>
+                                <div class="watch-stat">
+                                    <i class="fa-solid fa-shoe-prints"></i>
+                                    <span>8.2k</span>
+                                </div>
+                                <div class="watch-stat">
+                                    <i class="fa-solid fa-fire"></i>
+                                    <span>340 cal</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Floating stat cards -->
+                        <div class="float-stat">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                            <div class="stat-info">
+                                <span class="stat-value">72 bpm</span>
+                                <span class="stat-label">Heart Rate</span>
+                            </div>
+                        </div>
+                        <div class="float-stat">
+                            <i class="fa-solid fa-moon"></i>
+                            <div class="stat-info">
+                                <span class="stat-value">7h 42m</span>
+                                <span class="stat-label">Sleep Score</span>
+                            </div>
+                        </div>
+                        <div class="float-stat">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <div class="stat-info">
+                                <span class="stat-value">5.3 km</span>
+                                <span class="stat-label">GPS Track</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         PRODUCT FEATURES SECTION
+    ============================================ -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <h2 class="section-title reveal">Powerful <span class="accent-text">Features</span></h2>
+            <p class="section-subtitle reveal">Advanced sensors and AI-driven analytics to keep you ahead of your health goals.</p>
+
+            <div class="features-grid">
+                <article class="feature-card reveal">
+                    <div class="feature-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <h3>Heart Rate Monitoring</h3>
+                    <p>24/7 continuous heart rate tracking with abnormal rhythm detection and real-time alerts for peace of mind.</p>
+                </article>
+
+                <article class="feature-card reveal">
+                    <div class="feature-icon"><i class="fa-solid fa-moon"></i></div>
+                    <h3>Sleep Analysis</h3>
+                    <p>Deep, light, and REM sleep stage tracking with personalized sleep quality scores and improvement tips.</p>
+                </article>
+
+                <article class="feature-card reveal">
+                    <div class="feature-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <h3>GPS Tracking</h3>
+                    <p>Built-in precision GPS maps your runs, hikes, and rides with distance, pace, and elevation data.</p>
+                </article>
+
+                <article class="feature-card reveal">
+                    <div class="feature-icon"><i class="fa-solid fa-dumbbell"></i></div>
+                    <h3>Fitness Coaching</h3>
+                    <p>AI-powered workout recommendations adapting to your fitness level, goals, and recovery needs in real time.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SMART WATCH SHOWCASE SECTION
+    ============================================ -->
+    <section class="showcase-section" id="products">
+        <div class="container">
+            <h2 class="section-title reveal">Our <span class="gold-text">Watch Collection</span></h2>
+            <p class="section-subtitle reveal">Find the perfect FitTrack model that matches your lifestyle and fitness ambitions.</p>
+
+            <div class="showcase-grid">
+                <div class="showcase-card reveal">
+                    <div class="watch-image">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <h4>FitTrack Lite</h4>
+                    <span class="price">$149</span>
+                    <span class="original-price">$199</span>
+                </div>
+                <div class="showcase-card reveal">
+                    <div class="watch-image">
+                        <i class="fa-solid fa-person-running"></i>
+                    </div>
+                    <h4>FitTrack Sport</h4>
+                    <span class="price">$249</span>
+                    <span class="original-price">$329</span>
+                </div>
+                <div class="showcase-card reveal">
+                    <div class="watch-image">
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                    <h4>FitTrack Pro</h4>
+                    <span class="price">$349</span>
+                    <span class="original-price">$449</span>
+                </div>
+                <div class="showcase-card reveal">
+                    <div class="watch-image">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h4>FitTrack Ultra</h4>
+                    <span class="price">$449</span>
+                    <span class="original-price">$549</span>
+                </div>
+                <div class="showcase-card reveal">
+                    <div class="watch-image">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <h4>FitTrack Max</h4>
+                    <span class="price">$549</span>
+                    <span class="original-price">$699</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         REGISTRATION FORM SECTION
+    ============================================ -->
+    <section class="register-section" id="register">
+        <div class="container">
+            <h2 class="section-title reveal">Register Your <span class="accent-text">Smart Watch</span></h2>
+            <p class="section-subtitle reveal">Complete the form below to activate your warranty and unlock exclusive features.</p>
+
+            <div class="form-wrapper reveal">
+                <div class="form-header">
+                    <h2><i class="fa-solid fa-watch" style="color:var(--accent);margin-right:8px;"></i>Product Registration</h2>
+                    <p>Fields marked with <span style="color:var(--error)">*</span> are required</p>
+                </div>
+
+                <form id="registrationForm" novalidate>
+                    <!-- Row 1: Name & ID -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerName">
+                                <i class="fa-solid fa-user"></i>
+                                Customer Name <span class="required">*</span>
+                            </label>
+                            <input type="text" id="customerName" placeholder="Enter your full name" autocomplete="name">
+                            <span class="error-msg" id="nameError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerId">
+                                <i class="fa-solid fa-id-card"></i>
+                                Customer ID <span class="required">*</span>
+                            </label>
+                            <input type="text" id="customerId" placeholder="Numbers only (e.g. 102938)" autocomplete="off">
+                            <span class="error-msg" id="idError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Password & Email -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">
+                                <i class="fa-solid fa-lock"></i>
+                                Password <span class="required">*</span>
+                            </label>
+                            <input type="password" id="password" placeholder="Minimum 8 characters" autocomplete="new-password">
+                            <span class="error-msg" id="passwordError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">
+                                <i class="fa-solid fa-envelope"></i>
+                                Email Address <span class="required">*</span>
+                            </label>
+                            <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+                            <span class="error-msg" id="emailError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Mobile & Date of Purchase -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mobile">
+                                <i class="fa-solid fa-phone"></i>
+                                Mobile Number <span class="required">*</span>
+                            </label>
+                            <input type="tel" id="mobile" placeholder="10-digit number" autocomplete="tel">
+                            <span class="error-msg" id="mobileError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="purchaseDate">
+                                <i class="fa-solid fa-calendar"></i>
+                                Date of Purchase <span class="required">*</span>
+                            </label>
+                            <input type="date" id="purchaseDate">
+                            <span class="error-msg" id="dateError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Gender -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>
+                                <i class="fa-solid fa-venus-mars"></i>
+                                Gender <span class="required">*</span>
+                            </label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="gender" value="Male">
+                                    <span>Male</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="gender" value="Female">
+                                    <span>Female</span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="gender" value="Other">
+                                    <span>Other</span>
+                                </label>
+                            </div>
+                            <span class="error-msg" id="genderError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Watch Model -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="watchModel">
+                                <i class="fa-solid fa-clock"></i>
+                                Smart Watch Model <span class="required">*</span>
+                            </label>
+                            <select id="watchModel">
+                                <option value="">-- Select Your Model --</option>
+                                <option value="FitTrack Lite">FitTrack Lite</option>
+                                <option value="FitTrack Sport">FitTrack Sport</option>
+                                <option value="FitTrack Pro">FitTrack Pro</option>
+                                <option value="FitTrack Ultra">FitTrack Ultra</option>
+                                <option value="FitTrack Max">FitTrack Max</option>
+                            </select>
+                            <span class="error-msg" id="modelError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Row 6: Features Used -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>
+                                <i class="fa-solid fa-list-check"></i>
+                                Features Used <span class="required">*</span>
+                            </label>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" name="features" value="Heart Rate Monitor">
+                                    <span>Heart Rate Monitor</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="features" value="Sleep Tracking">
+                                    <span>Sleep Tracking</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="features" value="GPS Tracking">
+                                    <span>GPS Tracking</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="features" value="Fitness Coaching">
+                                    <span>Fitness Coaching</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="features" value="Blood Oxygen Monitor">
+                                    <span>Blood Oxygen Monitor</span>
+                                </label>
+                            </div>
+                            <span class="error-msg" id="featuresError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Row 7: Feedback -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="feedback">
+                                <i class="fa-solid fa-comment-dots"></i>
+                                Customer Feedback <span class="required">*</span>
+                            </label>
+                            <textarea id="feedback" placeholder="Share your experience with the FitTrack Pro smart watch..."></textarea>
+                            <span class="error-msg" id="feedbackError"></span>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="form-buttons">
+                        <button type="submit" class="btn-submit">
+                            <i class="fa-solid fa-paper-plane"></i>&nbsp; Submit Registration
+                        </button>
+                        <button type="reset" class="btn-reset">
+                            <i class="fa-solid fa-rotate-left"></i>&nbsp; Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         REPORT TABLE SECTION
+    ============================================ -->
+    <section class="report-section" id="report">
+        <div class="container">
+            <h2 class="section-title reveal">Registration <span class="accent-text">Report</span></h2>
+
+            <div class="table-wrapper reveal">
+                <table class="report-table" id="reportTable">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Customer Name</th>
+                            <th>Customer ID</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Gender</th>
+                            <th>Purchase Date</th>
+                            <th>Watch Model</th>
+                            <th>Features Used</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportBody">
+                        <!-- Rows will be added dynamically -->
+                    </tbody>
+                </table>
+                <div class="no-data-msg" id="noDataMsg">
+                    <i class="fa-solid fa-inbox"></i>
+                    No registrations yet. Submit the form above to add entries.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         TESTIMONIALS SECTION
+    ============================================ -->
+    <section class="testimonials-section" id="testimonials">
+        <div class="container">
+            <h2 class="section-title reveal">What Our <span class="gold-text">Customers Say</span></h2>
+            <p class="section-subtitle reveal">Real experiences from real FitTrack Pro users around the world.</p>
+
+            <div class="testimonials-grid">
+                <article class="testimonial-card reveal">
+                    <i class="fa-solid fa-quote-left quote-icon"></i>
+                    <div class="review-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="review-text">"The heart rate monitoring is incredibly accurate. My doctor was impressed with the data I brought in from my FitTrack Ultra. It literally helped catch an irregularity early."</p>
+                    <div class="reviewer">
+                        <div class="reviewer-avatar" style="background:linear-gradient(135deg,var(--accent),#009e4f);">AR</div>
+                        <div class="reviewer-info">
+                            <div class="reviewer-name">Amit Raghavan</div>
+                            <div class="reviewer-role">Marathon Runner</div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="testimonial-card reveal">
+                    <i class="fa-solid fa-quote-left quote-icon"></i>
+                    <div class="review-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="review-text">"Sleep tracking changed my life. I had no idea my sleep quality was so poor until FitTrack Pro showed me the data. After following its tips, I feel so much more rested."</p>
+                    <div class="reviewer">
+                        <div class="reviewer-avatar" style="background:linear-gradient(135deg,var(--gold),#cc9900);">SK</div>
+                        <div class="reviewer-info">
+                            <div class="reviewer-name">Sarah Kim</div>
+                            <div class="reviewer-role">Software Engineer</div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="testimonial-card reveal">
+                    <i class="fa-solid fa-quote-left quote-icon"></i>
+                    <div class="review-stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <p class="review-text">"The GPS tracking on my FitTrack Sport is spot on for my cycling routes. The fitness coaching feature adapts perfectly to my training schedule. Best investment I have made."</p>
+                    <div class="reviewer">
+                        <div class="reviewer-avatar" style="background:linear-gradient(135deg,#ff5252,#d32f2f);">MJ</div>
+                        <div class="reviewer-info">
+                            <div class="reviewer-name">Marcus Johnson</div>
+                            <div class="reviewer-role">Triathlete</div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         FOOTER
+    ============================================ -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                        <div class="logo-text">Fit<span>Track</span> Pro</div>
+                    </a>
+                    <p>Precision health monitoring meets premium design. Stay ahead of your fitness goals with cutting-edge wearable technology.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#products">Products</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#register">Register</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Warranty Policy</a></li>
+                        <li><a href="#">User Manuals</a></li>
+                        <li><a href="#">Firmware Updates</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul>
+                        <li><a href="mailto:support@fittrackpro.com"><i class="fa-solid fa-envelope"></i> support@fittrackpro.com</a></li>
+                        <li><a href="tel:+18005550199"><i class="fa-solid fa-phone"></i> +1 (800) 555-0199</a></li>
+                        <li><a href="#"><i class="fa-solid fa-location-dot"></i> 350 Fitness Ave, San Jose, CA</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 FitTrack Pro. All rights reserved.</p>
+                <p>Today's Date: <span class="current-date" id="currentDate"></span></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================
+         JAVASCRIPT
+    ============================================ -->
+    <script>
+        /* ============================================
+           GLOBAL VARIABLES & REGISTRATION DATA
+        ============================================ */
+        // Array to store all registration entries
+        let registrations = [];
+        // Serial number counter
+        let serialCounter = 0;
+
+        /* ============================================
+           DISPLAY CURRENT DATE AUTOMATICALLY
+        ============================================ */
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const formatted = now.toLocaleDateString('en-US', options);
+            const dateEl = document.getElementById('currentDate');
+            if (dateEl) dateEl.textContent = formatted;
+        }
+        updateCurrentDate();
+
+        /* ============================================
+           LIVE WATCH TIME IN HERO
+        ============================================ */
+        function updateWatchTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const timeEl = document.getElementById('watchTime');
+            const dateEl = document.getElementById('watchDate');
+
+            if (timeEl) timeEl.textContent = hours + ':' + minutes;
+            if (dateEl) {
+                const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+                const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+                dateEl.textContent = days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()];
+            }
+        }
+        updateWatchTime();
+        setInterval(updateWatchTime, 1000);
+
+        /* ============================================
+           HEADER SCROLL EFFECT
+        ============================================ */
+        const mainHeader = document.getElementById('mainHeader');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                mainHeader.classList.add('scrolled');
+            } else {
+                mainHeader.classList.remove('scrolled');
+            }
+        });
+
+        /* ============================================
+           MOBILE HAMBURGER MENU TOGGLE
+        ============================================ */
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const navMenu = document.getElementById('navMenu');
+
+        hamburgerBtn.addEventListener('click', function() {
+            hamburgerBtn.classList.toggle('active');
+            navMenu.classList.toggle('show');
+            const expanded = hamburgerBtn.getAttribute('aria-expanded') === 'true';
+            hamburgerBtn.setAttribute('aria-expanded', !expanded);
+        });
+
+        // Close menu when a nav link is clicked
+        document.querySelectorAll('#navMenu a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                hamburgerBtn.classList.remove('active');
+                navMenu.classList.remove('show');
+                hamburgerBtn.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        /* ============================================
+           ACTIVE NAV LINK ON SCROLL
+        ============================================ */
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('#navMenu a');
+
+        window.addEventListener('scroll', function() {
+            let current = '';
+            sections.forEach(function(section) {
+                const sectionTop = section.offsetTop - 120;
+                if (window.scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(function(link) {
+                link.classList.remove('active');
+                // Map section ids to nav hrefs
+                const href = link.getAttribute('href').substring(1);
+                if (href === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        /* ============================================
+           SCROLL REVEAL ANIMATION
+        ============================================ */
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        revealElements.forEach(function(el) {
+            revealObserver.observe(el);
+        });
+
+        /* ============================================
+           FORM VALIDATION FUNCTIONS
+        ============================================ */
+
+        // Show error message under a field
+        function showError(errorId, message) {
+            const errorEl = document.getElementById(errorId);
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.add('visible');
+            }
+        }
+
+        // Clear error message
+        function clearError(errorId) {
+            const errorEl = document.getElementById(errorId);
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.classList.remove('visible');
+            }
+        }
+
+        // Clear all errors
+        function clearAllErrors() {
+            const errorIds = ['nameError', 'idError', 'passwordError', 'emailError',
+                              'mobileError', 'dateError', 'genderError', 'modelError',
+                              'featuresError', 'feedbackError'];
+            errorIds.forEach(function(id) { clearError(id); });
+        }
+
+        // Main validation function — returns true if valid
+        function validateForm() {
+            let isValid = true;
+            clearAllErrors();
+
+            // Get form values
+            const name = document.getElementById('customerName').value.trim();
+            const custId = document.getElementById('customerId').value.trim();
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const purchaseDate = document.getElementById('purchaseDate').value;
+            const gender = document.querySelector('input[name="gender"]:checked');
+            const watchModel = document.getElementById('watchModel').value;
+            const features = document.querySelectorAll('input[name="features"]:checked');
+            const feedback = document.getElementById('feedback').value.trim();
+
+            // 1. Customer Name cannot be empty
+            if (name === '') {
+                showError('nameError', 'Customer name is required.');
+                isValid = false;
+            }
+
+            // 2. Customer ID must contain only numbers
+            if (custId === '') {
+                showError('idError', 'Customer ID is required.');
+                isValid = false;
+            } else if (!/^\d+$/.test(custId)) {
+                showError('idError', 'Customer ID must contain only numbers.');
+                isValid = false;
+            }
+
+            // 3. Password must be at least 8 characters
+            if (password === '') {
+                showError('passwordError', 'Password is required.');
+                isValid = false;
+            } else if (password.length < 8) {
+                showError('passwordError', 'Password must be at least 8 characters.');
+                isValid = false;
+            }
+
+            // 4. Email must be valid
+            if (email === '') {
+                showError('emailError', 'Email address is required.');
+                isValid = false;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('emailError', 'Please enter a valid email address.');
+                isValid = false;
+            }
+
+            // 5. Mobile Number must be exactly 10 digits
+            if (mobile === '') {
+                showError('mobileError', 'Mobile number is required.');
+                isValid = false;
+            } else if (!/^\d{10}$/.test(mobile)) {
+                showError('mobileError', 'Mobile number must be exactly 10 digits.');
+                isValid = false;
+            }
+
+            // 6. Date of Purchase must be selected
+            if (purchaseDate === '') {
+                showError('dateError', 'Date of purchase is required.');
+                isValid = false;
+            }
+
+            // 7. Gender must be selected
+            if (!gender) {
+                showError('genderError', 'Please select your gender.');
+                isValid = false;
+            }
+
+            // 8. Smart Watch Model must be selected
+            if (watchModel === '') {
+                showError('modelError', 'Please select a watch model.');
+                isValid = false;
+            }
+
+            // 9. At least one feature must be selected
+            if (features.length === 0) {
+                showError('featuresError', 'Please select at least one feature.');
+                isValid = false;
+            }
+
+            // 10. Feedback cannot be empty
+            if (feedback === '') {
+                showError('feedbackError', 'Customer feedback is required.');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        /* ============================================
+           TOAST NOTIFICATION
+        ============================================ */
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        /* ============================================
+           REPORT TABLE GENERATION
+        ============================================ */
+        function addReportRow(data) {
+            const tbody = document.getElementById('reportBody');
+            const noDataMsg = document.getElementById('noDataMsg');
+
+            // Hide "no data" message
+            if (noDataMsg) noDataMsg.style.display = 'none';
+
+            // Increment serial counter
+            serialCounter++;
+
+            // Build features comma-separated string
+            const featuresList = data.features.join(', ');
+
+            // Create table row
+            const tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td>' + serialCounter + '</td>' +
+                '<td>' + escapeHtml(data.name) + '</td>' +
+                '<td>' + escapeHtml(data.custId) + '</td>' +
+                '<td>' + escapeHtml(data.email) + '</td>' +
+                '<td>' + escapeHtml(data.mobile) + '</td>' +
+                '<td>' + escapeHtml(data.gender) + '</td>' +
+                '<td>' + escapeHtml(data.purchaseDate) + '</td>' +
+                '<td>' + escapeHtml(data.watchModel) + '</td>' +
+                '<td>' + escapeHtml(featuresList) + '</td>' +
+                '<td>' + escapeHtml(data.feedback) + '</td>';
+
+            tbody.appendChild(tr);
+
+            // Smooth scroll to the report section
+            setTimeout(function() {
+                document.getElementById('report').scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        /* ============================================
+           FORM SUBMISSION HANDLER
+        ============================================ */
+        const form = document.getElementById('registrationForm');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Validate the form
+            if (!validateForm()) {
+                // Scroll to first error
+                const firstError = document.querySelector('.error-msg.visible');
+                if (firstError) {
+                    firstError.closest('.form-group').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+                return;
+            }
+
+            // Gather form data
+            const name = document.getElementById('customerName').value.trim();
+            const custId = document.getElementById('customerId').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const purchaseDate = document.getElementById('purchaseDate').value;
+            const watchModel = document.getElementById('watchModel').value;
+            const feedback = document.getElementById('feedback').value.trim();
+
+            // Get selected features as array
+            const featuresArr = [];
+            document.querySelectorAll('input[name="features"]:checked').forEach(function(cb) {
+                featuresArr.push(cb.value);
+            });
+
+            // Create data object
+            const data = {
+                name: name,
+                custId: custId,
+                email: email,
+                mobile: mobile,
+                gender: gender,
+                purchaseDate: purchaseDate,
+                watchModel: watchModel,
+                features: featuresArr,
+                feedback: feedback
+            };
+
+            // Add to registrations array
+            registrations.push(data);
+
+            // Add row to the report table
+            addReportRow(data);
+
+            // Show success toast
+            showToast();
+
+            // Reset the form
+            form.reset();
+            clearAllErrors();
+        });
+
+        /* ============================================
+           RESET BUTTON HANDLER
+        ============================================ */
+        form.addEventListener('reset', function() {
+            // Delay clearing errors so the reset finishes first
+            setTimeout(function() {
+                clearAllErrors();
+            }, 10);
+        });
+
+        /* ============================================
+           REAL-TIME FIELD VALIDATION (on blur)
+        ============================================ */
+        document.getElementById('customerName').addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                showError('nameError', 'Customer name is required.');
+            } else {
+                clearError('nameError');
+            }
+        });
+
+        document.getElementById('customerId').addEventListener('blur', function() {
+            const val = this.value.trim();
+            if (val === '') {
+                showError('idError', 'Customer ID is required.');
+            } else if (!/^\d+$/.test(val)) {
+                showError('idError', 'Customer ID must contain only numbers.');
+            } else {
+                clearError('idError');
+            }
+        });
+
+        document.getElementById('password').addEventListener('blur', function() {
+            const val = this.value;
+            if (val === '') {
+                showError('passwordError', 'Password is required.');
+            } else if (val.length < 8) {
+                showError('passwordError', 'Password must be at least 8 characters.');
+            } else {
+                clearError('passwordError');
+            }
+        });
+
+        document.getElementById('email').addEventListener('blur', function() {
+            const val = this.value.trim();
+            if (val === '') {
+                showError('emailError', 'Email address is required.');
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                showError('emailError', 'Please enter a valid email address.');
+            } else {
+                clearError('emailError');
+            }
+        });
+
+        document.getElementById('mobile').addEventListener('blur', function() {
+            const val = this.value.trim();
+            if (val === '') {
+                showError('mobileError', 'Mobile number is required.');
+            } else if (!/^\d{10}$/.test(val)) {
+                showError('mobileError', 'Mobile number must be exactly 10 digits.');
+            } else {
+                clearError('mobileError');
+            }
+        });
+
+        document.getElementById('feedback').addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                showError('feedbackError', 'Customer feedback is required.');
+            } else {
+                clearError('feedbackError');
+            }
+        });
+
+        /* ============================================
+           KEYBOARD ACCESSIBILITY: Focus visible
+        ============================================ */
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-nav');
+            }
+        });
+        document.addEventListener('mousedown', function() {
+            document.body.classList.remove('keyboard-nav');
+        });
+
+        // Add focus-visible styles dynamically
+        const focusStyle = document.createElement('style');
+        focusStyle.textContent = `
+            .keyboard-nav *:focus {
+                outline: 2px solid var(--accent) !important;
+                outline-offset: 2px !important;
+            }
+        `;
+        document.head.appendChild(focusStyle);
+    </script>
+</body>
+</html>
